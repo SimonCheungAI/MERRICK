@@ -1,0 +1,128 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Python / uv
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.egg-info/
+
+# Build output
+build/
+dist/
+*.app
+.codex-dsh-launcher-build/
+
+# Node / OpenClaw dependencies
+node_modules/
+.pnpm-store/
+*.tsbuildinfo
+
+# Swift / Xcode
+.build/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+
+# Machine-local tools and editors
+.claude/
+.codex/
+.vscode/
+.idea/
+
+# Secrets and signing material
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+*.p12
+*.pfx
+*.mobileprovision
+*credentials*.json
+*secrets*.json
+secrets/
+credentials/
+.gateway-token
+.action-secret
+.gateway-owner.json
+openclaw.json
+openclaw.json.bak*
+device-auth.json
+auth-profiles.json
+
+# Runtime files and personal assistant data
+*.log
+*.pid
+*.sock
+*.jsonl
+*.sqlite*
+*.db
+.cache/
+tmp/
+runtime/
+logs/
+memories/
+transcripts/
+recordings/
+browser-profile/
+.jarvis-state/
+.openclaw-state/
+.jarvis/
+.openclaw/
+openclaw-data/
+*.wav
+*.mp3
+
+# Personal memory backups never belong in the public source repository.
+backups/
+*.m4a
+MERRICK-owner-sample-*.m4a
+MERRICK-owner-sample-*.wav
+# Keep pre-rename private recordings excluded as well.
+JARVIS-owner-sample-*.m4a
+JARVIS-owner-sample-*.wav
+
+# Generated design/runtime artifacts stay local. Keep only the approved
+# Steadfast identity reference and its reproducible design specification.
+artifacts/ui-qa/
+artifacts/voice-samples/
+artifacts/voice-design/*
+!artifacts/voice-design/voice-design-spec.json
+!artifacts/voice-design/samples/
+artifacts/voice-design/samples/*
+!artifacts/voice-design/samples/01-jarvis-steadfast.wav
+!artifacts/voice-design/samples/04-steadfast-english-identity.wav
+
+# Tiny pre-generated Steadfast cues are product assets, not recordings.
+!web/audio/
+!web/audio/steadfast/
+!web/audio/steadfast/ack-*.wav
+
+# Reviewed product-film audio, not microphone recordings or owner voiceprints.
+!marketing-site/media/jarvis-authentic-response.mp3
+!marketing-video/public/jarvis-authentic-response.wav
+!marketing-video/public/merrick-awakening-line.wav
+!marketing-video/public/lucen-awakening-sfx.wav
+!marketing-video/public/assembly/narration/*.wav
+!marketing-video/public/assembly/narration-merrick/*.wav
+
+# Keep source clips and the current website film. Historical render copies stay
+# local; their compositions and render commands remain versioned.
+marketing-video/exports/*
+!marketing-video/exports/*.md
+marketing-site/media/lucen-awakening-*.mp4
+marketing-site/media/lucen-product-film-assembly-*
+marketing-site/media/velenic-product-film-*
+marketing-site/media/merrick-product-film-v1-1440p.mp4

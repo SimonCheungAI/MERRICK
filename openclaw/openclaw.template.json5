@@ -1,0 +1,390 @@
+{
+  // OpenClaw adds these fields to every first-party config mutation (including
+  // OAuth). Keep them in MERRICK's generated template as well; otherwise an
+  // authorized restart can mistake the app-owned refresh for a clobbered file
+  // and restore an obsolete last-known-good configuration.
+  meta: {
+    lastTouchedVersion: "2026.8.1",
+  },
+
+  gateway: {
+    mode: "local",
+    bind: "loopback",
+    // The runtime injects its selected loopback port. OpenClaw then emits its
+    // own canonical sessionUrl for every visible Agent Board child.
+    publicOrigin: "${JARVIS_OPENCLAW_PUBLIC_ORIGIN}",
+    // BEGIN GENERATED RUNTIME CONTRACT GATEWAY
+    // contract-sha256: 14aaefe61bc21c90f1fb770a991367466656817b5d413ab95e01f180aa45cfc8
+    port: 18789,
+    // END GENERATED RUNTIME CONTRACT GATEWAY
+    auth: {
+      mode: "token",
+      token: { source: "env", provider: "default", id: "OPENCLAW_GATEWAY_TOKEN" },
+    },
+    // The local Agent Board is an authenticated owner surface. OpenClaw hard-
+    // denies remote session spawning by default, so opt this one orchestration
+    // tool back into the loopback RPC path used by MERRICK
+    tools: { allow: ["sessions_spawn", "sessions_list", "sessions_history", "sessions"] },
+    http: {
+      endpoints: {
+        responses: {
+          enabled: true,
+          maxUrlParts: 0,
+          files: { allowUrl: false },
+          images: {
+            allowUrl: false,
+            allowedMimes: ["image/jpeg", "image/png"],
+            maxBytes: 4000000,
+          },
+        },
+      },
+    },
+  },
+
+  browser: {
+    // A visible, isolated browser profile for MERRICK web research and
+    // web-app control. It never attaches to the user's personal Chrome profile.
+    enabled: true,
+    evaluateEnabled: true,
+    defaultProfile: "openclaw",
+    headless: false,
+    ssrfPolicy: { dangerouslyAllowPrivateNetwork: true },
+  },
+
+  models: {
+    mode: "merge",
+    providers: {
+      // BEGIN GENERATED RUNTIME CONTRACT MODEL ROUTES
+      // contract-sha256: 14aaefe61bc21c90f1fb770a991367466656817b5d413ab95e01f180aa45cfc8
+      "openai": {
+        agentRuntime: { id: "${JARVIS_OPENAI_RUNTIME}" },
+      },
+      "anthropic": {
+        agentRuntime: { id: "${JARVIS_ANTHROPIC_RUNTIME}" },
+      },
+      "jarvis-openai-api": {
+        baseUrl: "${JARVIS_SELECTED_BASE_URL}",
+        apiKey: { source: "env", provider: "default", id: "JARVIS_MODEL_API_KEY" },
+        api: "openai-responses",
+        models: [
+          {
+            id: "${JARVIS_SELECTED_MODEL}",
+            name: "MERRICK OpenAI API model",
+            input: ["text", "image"],
+            contextWindow: 128000,
+            maxTokens: 8192,
+          },
+        ],
+      },
+      "jarvis-anthropic-api": {
+        baseUrl: "${JARVIS_SELECTED_BASE_URL}",
+        apiKey: { source: "env", provider: "default", id: "JARVIS_MODEL_API_KEY" },
+        api: "anthropic-messages",
+        models: [
+          {
+            id: "${JARVIS_SELECTED_MODEL}",
+            name: "MERRICK Anthropic API model",
+            input: ["text", "image"],
+            contextWindow: 200000,
+            maxTokens: 8192,
+          },
+        ],
+      },
+      "jarvis-google-api": {
+        baseUrl: "${JARVIS_SELECTED_BASE_URL}",
+        apiKey: { source: "env", provider: "default", id: "JARVIS_MODEL_API_KEY" },
+        api: "google-generative-ai",
+        models: [
+          {
+            id: "${JARVIS_SELECTED_MODEL}",
+            name: "MERRICK Google API model",
+            input: ["text", "image"],
+            contextWindow: 1000000,
+            maxTokens: 8192,
+          },
+        ],
+      },
+      "jarvis-moonshot-api": {
+        baseUrl: "${JARVIS_SELECTED_BASE_URL}",
+        apiKey: { source: "env", provider: "default", id: "JARVIS_MODEL_API_KEY" },
+        api: "openai-completions",
+        models: [
+          {
+            id: "${JARVIS_SELECTED_MODEL}",
+            name: "MERRICK Moonshot API model",
+            input: ["text", "image"],
+            contextWindow: 262144,
+            maxTokens: 8192,
+          },
+        ],
+      },
+      "jarvis-compatible": {
+        baseUrl: "${JARVIS_SELECTED_BASE_URL}",
+        apiKey: { source: "env", provider: "default", id: "JARVIS_MODEL_API_KEY" },
+        api: "openai-completions",
+        models: [
+          {
+            id: "${JARVIS_SELECTED_MODEL}",
+            name: "MERRICK compatible model",
+            input: ["text", "image"],
+            contextWindow: 128000,
+            maxTokens: 8192,
+          },
+        ],
+      },
+      // END GENERATED RUNTIME CONTRACT MODEL ROUTES
+    },
+  },
+
+  agents: {
+    ownership: "explicit",
+    defaults: {
+      workspace: "${JARVIS_WORKSPACE_DIR}",
+      model: { primary: "${JARVIS_MAIN_MODEL}" },
+      systemAgent: { agentId: "main" },
+      sandbox: { mode: "off" },
+      compaction: { memoryFlush: { enabled: false } },
+    },
+    entries: {
+      main: {
+        workspace: "${JARVIS_WORKSPACE_DIR}",
+        model: { primary: "${JARVIS_MAIN_MODEL}", fallbacks: [] },
+        thinkingDefault: "off",
+        reasoningDefault: "off",
+        fastModeDefault: true,
+        // Inherit the complete OpenClaw tool surface. MERRICK routes
+        // direct user requests here instead of through a duplicate local
+        // action schema.
+        tools: {},
+      },
+      conversation: {
+        workspace: "${OPENCLAW_STATE_DIR}/workspace",
+        model: { primary: "${JARVIS_CONVERSATION_MODEL}", fallbacks: [] },
+        thinkingDefault: "off",
+        reasoningDefault: "off",
+        fastModeDefault: true,
+        // The host supplies the complete compact persona, language, privacy,
+        // and bounded follow-up context for every ordinary chat turn.
+        contextInjection: "never",
+      },
+      "memory-writer": {
+        workspace: "${OPENCLAW_STATE_DIR}/memory-writer-workspace",
+      },
+      "screen-reader": {
+        workspace: "${OPENCLAW_STATE_DIR}/workspace",
+        model: { primary: "${JARVIS_MAIN_MODEL}", fallbacks: [] },
+        thinkingDefault: "off",
+        reasoningDefault: "off",
+        fastModeDefault: true,
+      },
+      "action-planner": {
+        workspace: "${OPENCLAW_STATE_DIR}/action-planner-workspace",
+        model: { primary: "${JARVIS_MAIN_MODEL}", fallbacks: [] },
+        thinkingDefault: "off",
+        reasoningDefault: "off",
+        fastModeDefault: true,
+      },
+      "action-executor": {
+        workspace: "${OPENCLAW_STATE_DIR}/workspace",
+      },
+      "page-reader-executor": {
+        workspace: "${OPENCLAW_STATE_DIR}/workspace",
+      },
+      researcher: {
+        workspace: "${OPENCLAW_STATE_DIR}/workspace",
+        model: { primary: "${JARVIS_MAIN_MODEL}", fallbacks: [] },
+        thinkingDefault: "off",
+        reasoningDefault: "off",
+        fastModeDefault: true,
+      },
+      "research-executor": {
+        workspace: "${OPENCLAW_STATE_DIR}/workspace",
+      },
+    },
+  },
+
+  memory: {
+    search: {
+      enabled: true,
+      provider: "none",
+      sources: ["memory", "sessions"],
+      rememberAcrossConversations: true,
+    },
+  },
+
+  tools: {
+    // `minimal` silently removes most of OpenClaw's native capabilities
+    // before agent routing even begins. MERRICK uses `full` so skills,
+    // subagents, automations, memory, channels and plugin tools remain
+    // available when the user configures them.
+    profile: "full",
+    // No global or per-agent capability list sits in front of OpenClaw.
+    // Action-time authorization is handled through Gateway approval events.
+    fs: { workspaceOnly: false },
+    exec: { mode: "full" },
+    elevated: { enabled: true },
+    codeMode: { enabled: true },
+    sessions: { visibility: "agent" },
+    // Agent Board work uses durable OpenClaw sessions. Swarm stays enabled for
+    // hidden internal collectors that never appear as controllable user agents.
+    swarm: {
+      enabled: true,
+      maxConcurrent: 4,
+      maxChildrenPerGroup: 8,
+      maxTotalPerGroup: 8,
+      waitTimeoutSecondsMax: 30,
+    },
+    web: {
+      search: {
+        enabled: true,
+        // DuckDuckGo's unauthenticated HTML endpoint is vulnerable to
+        // bot-detection challenges. Reuse the already authenticated Codex
+        // session for grounded hosted search instead.
+        provider: "codex",
+        // The host scales synthesis breadth from four to eight diverse
+        // sources, so the gateway must retain enough candidates to select
+        // distinct primary sites rather than repeatedly opening one domain.
+        maxResults: 12,
+        timeoutSeconds: 20,
+        cacheTtlMinutes: 15,
+        openaiCodex: {
+          enabled: true,
+          mode: "live",
+          contextSize: "high",
+        },
+      },
+      fetch: {
+        enabled: true,
+        maxChars: 12000,
+        maxCharsCap: 12000,
+        maxResponseBytes: 500000,
+        timeoutSeconds: 20,
+        cacheTtlMinutes: 15,
+        maxRedirects: 3,
+        readability: true,
+        useTrustedEnvProxy: false,
+      },
+    },
+    loopDetection: {
+      enabled: true,
+    },
+  },
+
+  transcripts: {
+    enabled: true,
+  },
+
+  plugins: {
+    enabled: true,
+    load: {
+      paths: [
+        // The official Codex provider lives in OpenClaw's signed bundled tree.
+        // Listing that package here would downgrade it to an untrusted path
+        // plugin, which cannot open its credential store after OAuth.
+        "${JARVIS_PROJECT_ROOT}/openclaw/plugins/jarvis-safe-tools",
+      ],
+    },
+    entries: {
+      openai: { enabled: true },
+      anthropic: { enabled: true },
+      google: { enabled: true },
+      codex: {
+        enabled: true,
+        config: {
+          codexDynamicToolsLoading: "direct",
+          // The backend seeds the official client and this marketplace into
+          // MERRICK's private CODEX_HOME before starting the gateway.
+          // `enabled` is deliberately inherited from the launch environment:
+          // a damaged/incomplete bundle keeps ordinary conversation online.
+          computerUse: {
+            autoInstall: true,
+            marketplacePath: "${JARVIS_CODEX_COMPUTER_USE_MARKETPLACE_PATH}",
+            marketplaceName: "jarvis-bundled",
+          },
+          codexPlugins: {
+            enabled: true,
+            // Every account-accessible app is available to a new Codex
+            // thread. Writes and destructive actions still pause for the
+            // owner's decision in the MERRICK HUD.
+            allow_all_plugins: true,
+            allow_destructive_actions: "ask",
+          },
+          appServer: {
+            mode: "guardian",
+            transport: "stdio",
+            // Use the Codex binary already pinned inside this signed runtime.
+            // Leaving this unset makes OpenClaw run npm install during an
+            // OAuth restart, which is slow, network-dependent and can strand
+            // its startup-migration lease when the desktop reconnects.
+            command: "${JARVIS_PROJECT_ROOT}/node_modules/.pnpm/node_modules/@openai/codex/bin/codex.js",
+            // Start the complete Codex app-server surface. Installed plugins
+            // are discovered normally; MERRICK does not suppress the catalog.
+            args: [
+              "app-server",
+              "--listen",
+              "stdio://",
+            ],
+            // This is MERRICK's own local Gateway, not a shared OpenClaw
+            // MERRICK owns one isolated OpenClaw/Codex OAuth profile. The
+            // profile is created from MERRICK Settings and lives with this
+            // application's OpenClaw state, never in ~/.codex. Keep the
+            // main agent's Codex home so the existing MERRICK OAuth bridge
+            // remains intact; the bootstrap seeds Computer Use into it.
+            homeScope: "agent",
+            // Keep the pinned executable so its protocol matches the bundled
+            // OpenClaw release and its MERRICK-owned OAuth profile.
+            approvalPolicy: "on-request",
+            sandbox: "danger-full-access",
+            // Exec, Computer Use and plugin approvals are forwarded through
+            // the Gateway and answered by the owner in the MERRICK HUD.
+            approvalsReviewer: "user",
+            codeModeOnly: false,
+            clearEnv: ["CODEX_API_KEY", "OPENAI_API_KEY", "JARVIS_ACTION_SECRET"],
+            defaultWorkspaceDir: "${JARVIS_WORKSPACE_DIR}",
+          },
+        },
+      },
+      "memory-core": { enabled: true },
+      "memory-wiki": {
+        enabled: true,
+        config: {
+          vaultMode: "isolated",
+          vault: {
+            path: "${OPENCLAW_STATE_DIR}/memory/wiki",
+            renderMode: "native",
+          },
+          obsidian: {
+            enabled: false,
+            useOfficialCli: false,
+            openAfterWrites: false,
+          },
+          bridge: {
+            enabled: false,
+            readMemoryArtifacts: false,
+            indexDreamReports: false,
+            indexDailyNotes: false,
+            indexMemoryRoot: false,
+            followMemoryEvents: false,
+          },
+          unsafeLocal: {
+            allowPrivateMemoryCoreAccess: false,
+            paths: [],
+          },
+          ingest: {
+            autoCompile: true,
+            maxConcurrentJobs: 1,
+            allowUrlIngest: false,
+          },
+          search: { backend: "local", corpus: "wiki" },
+          context: { includeCompiledDigestPrompt: true },
+          render: {
+            preserveHumanBlocks: true,
+            createBacklinks: true,
+            createDashboards: true,
+          },
+        },
+      },
+      "jarvis-safe-tools": { enabled: true },
+    },
+  },
+}

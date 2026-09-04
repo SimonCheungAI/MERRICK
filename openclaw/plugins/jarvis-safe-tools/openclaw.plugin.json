@@ -1,0 +1,60 @@
+{
+  "id": "jarvis-safe-tools",
+  "name": "MERRICK Companion Bridge",
+  "description": "Native macOS companion surfaces that augment OpenClaw without restricting its built-in tools, skills, coding, sessions, or integrations.",
+  "version": "0.1.0",
+  "configSchema": {
+    "type": "object",
+    "properties": {},
+    "additionalProperties": false
+  },
+  "activation": {
+    "onStartup": true
+  },
+  "contracts": {
+    "tools": [
+      "jarvis_open_app",
+      "jarvis_open_web_page",
+      "jarvis_read_web_page",
+      "jarvis_media_control",
+      "jarvis_play_music",
+      "jarvis_tasks_create",
+      "jarvis_tasks_list",
+      "jarvis_tasks_complete",
+      "jarvis_tasks_update",
+      "jarvis_reminders_update"
+    ]
+  },
+  "toolMetadata": {
+    "jarvis_open_app": {
+      "optional": true
+    },
+    "jarvis_open_web_page": {
+      "optional": true
+    },
+    "jarvis_read_web_page": {
+      "optional": true
+    },
+    "jarvis_media_control": {
+      "optional": true
+    },
+    "jarvis_play_music": {
+      "optional": true
+    },
+    "jarvis_tasks_create": {
+      "optional": true
+    },
+    "jarvis_tasks_list": {
+      "optional": true
+    },
+    "jarvis_tasks_complete": {
+      "optional": true
+    },
+    "jarvis_tasks_update": {
+      "optional": true
+    },
+    "jarvis_reminders_update": {
+      "optional": true
+    }
+  }
+}

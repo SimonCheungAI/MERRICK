@@ -1,0 +1,63 @@
+{
+  "project": "J.A.R.V.I.S. original Mandarin voice prototypes",
+  "purpose": "Fictional, non-imitative voice design for the local personal assistant",
+  "model": "mlx-community/Qwen3-TTS-12Hz-1.7B-VoiceDesign-8bit",
+  "model_license": "Apache-2.0",
+  "runtime": "mlx-audio 0.5.0",
+  "sample_rate_hz": 24000,
+  "generation": {
+    "temperature": 0.82,
+    "top_k": 40,
+    "top_p": 0.92,
+    "repetition_penalty": 1.08,
+    "max_tokens": 3072,
+    "language": "Chinese"
+  },
+  "test_text": "好的，先生。我已经整理完今天的安排。上午九点有产品会议，下午三点需要提交报告。伦敦今天有阵雨，出门时记得带伞。",
+  "selected_voice": "steadfast",
+  "prototypes": [
+    {
+      "id": "steadfast",
+      "file": "samples/01-jarvis-steadfast.wav",
+      "seed": 4101,
+      "description": "原创的成年男性中文助理声线，听感约三十五岁，中低音但不压喉，胸腔共鸣适中，音色干净、温暖、克制。普通话自然，无明显地域口音；咬字清楚但绝不使用新闻播音腔。语速稍慢，停顿像真人思考，句尾轻柔收束。情绪冷静、可靠、敏锐，带一点英式管家般的分寸感，但不模仿任何真人、演员或现有角色。不要机械感，不要夸张，不要气泡音。"
+    },
+    {
+      "id": "gravitas",
+      "file": "samples/02-jarvis-gravitas.wav",
+      "seed": 5202,
+      "description": "原创的成年男性中文私人助理声线，听感约四十二岁，低沉但清晰，略带非常轻微的自然颗粒感和呼吸质感，声音有重量却不威严。普通话自然流畅，不要播音员腔；节奏从容，关键词略微加重，短句之间有自然停顿。整体沉稳、理性、可信，像长期合作的高级私人助理，但不模仿任何真人、演员或已有虚构角色。不要戏剧化，不要沙哑过度，不要机器人音。"
+    },
+    {
+      "id": "clarity",
+      "file": "samples/03-jarvis-clarity.wav",
+      "seed": 6303,
+      "description": "原创的中性中文智能助理声线，成年感约三十二岁，性别感弱，音域居中偏低，音色通透、柔和、近距离，带少量真实气息。普通话口语化、自然，不要字正腔圆的播音风格。语速平稳略快，反应显得敏捷，停顿短而自然；气质冷静、聪明、友善但不过分热情。不模仿任何真人、演员、品牌声音或现有角色，不要机械感，不要卡通感。"
+    }
+  ],
+  "cross_language_identity": {
+    "model": "mlx-community/Qwen3-TTS-12Hz-1.7B-Base-8bit",
+    "method": "Cross-language speaker-embedding-only cloning from the selected Steadfast Mandarin reference",
+    "reference_audio": "samples/01-jarvis-steadfast.wav",
+    "reference_text_used_for_generation": false,
+    "language": "English",
+    "seed": 8210,
+    "temperature": 0.74,
+    "top_k": 38,
+    "top_p": 0.92,
+    "repetition_penalty": 1.15,
+    "speaker_similarity_encoder": "Resemblyzer VoiceEncoder",
+    "validation_utterances": [
+      {
+        "id": "steadfast-english-identity",
+        "file": "samples/04-steadfast-english-identity.wav",
+        "speaker_similarity_to_mandarin_reference": 0.9068
+      },
+      {
+        "id": "steadfast-english-identity-reproduction",
+        "file": "samples/05-steadfast-english-identity-repro.wav",
+        "speaker_similarity_to_mandarin_reference": 0.9060
+      }
+    ]
+  }
+}

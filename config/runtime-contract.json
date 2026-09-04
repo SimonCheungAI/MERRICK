@@ -1,0 +1,359 @@
+{
+  "schemaVersion": 1,
+  "localServices": {
+    "backend": {
+      "host": "127.0.0.1",
+      "port": 8765,
+      "healthPath": "/health",
+      "websocketPath": "/ws"
+    },
+    "openclaw": {
+      "host": "127.0.0.1",
+      "port": 18789
+    }
+  },
+  "modelRoutes": {
+    "openai": {
+      "kind": "agentRuntime",
+      "runtimeEnv": "JARVIS_OPENAI_RUNTIME"
+    },
+    "anthropic": {
+      "kind": "agentRuntime",
+      "runtimeEnv": "JARVIS_ANTHROPIC_RUNTIME"
+    },
+    "jarvis-openai-api": {
+      "kind": "api",
+      "protocol": "openai-responses",
+      "displayName": "MERRICK OpenAI API model",
+      "contextWindow": 128000,
+      "maxTokens": 8192
+    },
+    "jarvis-anthropic-api": {
+      "kind": "api",
+      "protocol": "anthropic-messages",
+      "displayName": "MERRICK Anthropic API model",
+      "contextWindow": 200000,
+      "maxTokens": 8192
+    },
+    "jarvis-google-api": {
+      "kind": "api",
+      "protocol": "google-generative-ai",
+      "displayName": "MERRICK Google API model",
+      "contextWindow": 1000000,
+      "maxTokens": 8192
+    },
+    "jarvis-moonshot-api": {
+      "kind": "api",
+      "protocol": "openai-completions",
+      "displayName": "MERRICK Moonshot API model",
+      "contextWindow": 262144,
+      "maxTokens": 8192
+    },
+    "jarvis-compatible": {
+      "kind": "api",
+      "protocol": "openai-completions",
+      "displayName": "MERRICK compatible model",
+      "contextWindow": 128000,
+      "maxTokens": 8192
+    }
+  },
+  "connectionStages": {
+    "notConfigured": "not_configured",
+    "credentialStored": "credential_stored",
+    "validating": "validating",
+    "ready": "ready",
+    "failed": "failed"
+  },
+  "providers": {
+    "codex": {
+      "title": "Codex subscription",
+      "detail": "Use a MERRICK-owned ChatGPT / Codex sign-in. A browser window may open to finish authentication.",
+      "defaultModel": "gpt-5.5",
+      "authMode": "cli",
+      "profileAuthMode": "jarvis-oauth",
+      "runtimeRoute": "openai",
+      "probeRoute": "openai",
+      "probeProfileId": "openai:jarvis",
+      "defaultBaseUrl": "https://api.openai.com/v1",
+      "baseUrlRequired": false,
+      "conversationModel": "openai/gpt-5.4-mini",
+      "openaiRuntime": "codex",
+      "anthropicRuntime": "openclaw",
+      "credentialEnv": []
+    },
+    "claude-code": {
+      "title": "Claude Code",
+      "detail": "Use the installed Claude Code CLI and its local login. MERRICK never receives the subscription password or token.",
+      "defaultModel": "claude-sonnet-5",
+      "authMode": "cli",
+      "profileAuthMode": "cli",
+      "runtimeRoute": "anthropic",
+      "probeRoute": "claude-cli",
+      "probeProfileId": null,
+      "defaultBaseUrl": "https://api.anthropic.com",
+      "baseUrlRequired": false,
+      "conversationModel": null,
+      "openaiRuntime": "openclaw",
+      "anthropicRuntime": "claude-cli",
+      "credentialEnv": []
+    },
+    "openai": {
+      "title": "OpenAI API",
+      "detail": "Connect a paid OpenAI Platform API key. This is separate from a ChatGPT subscription.",
+      "defaultModel": "gpt-5.5",
+      "authMode": "api",
+      "profileAuthMode": "api",
+      "runtimeRoute": "jarvis-openai-api",
+      "probeRoute": "jarvis-openai-api",
+      "probeProfileId": null,
+      "defaultBaseUrl": "https://api.openai.com/v1",
+      "baseUrlRequired": false,
+      "conversationModel": null,
+      "openaiRuntime": "openclaw",
+      "anthropicRuntime": "openclaw",
+      "credentialEnv": ["OPENAI_API_KEY"]
+    },
+    "anthropic": {
+      "title": "Anthropic API",
+      "detail": "Connect an Anthropic Console API key for direct Claude API access.",
+      "defaultModel": "claude-sonnet-5",
+      "authMode": "api",
+      "profileAuthMode": "api",
+      "runtimeRoute": "jarvis-anthropic-api",
+      "probeRoute": "jarvis-anthropic-api",
+      "probeProfileId": null,
+      "defaultBaseUrl": "https://api.anthropic.com",
+      "baseUrlRequired": false,
+      "conversationModel": null,
+      "openaiRuntime": "openclaw",
+      "anthropicRuntime": "openclaw",
+      "credentialEnv": ["ANTHROPIC_API_KEY"]
+    },
+    "gemini": {
+      "title": "Google Gemini",
+      "detail": "Connect a Google AI Studio Gemini API key.",
+      "defaultModel": "gemini-3.1-pro-preview",
+      "authMode": "api",
+      "profileAuthMode": "api",
+      "runtimeRoute": "jarvis-google-api",
+      "probeRoute": "jarvis-google-api",
+      "probeProfileId": null,
+      "defaultBaseUrl": "https://generativelanguage.googleapis.com",
+      "baseUrlRequired": false,
+      "conversationModel": null,
+      "openaiRuntime": "openclaw",
+      "anthropicRuntime": "openclaw",
+      "credentialEnv": ["GEMINI_API_KEY", "GOOGLE_API_KEY"]
+    },
+    "kimi": {
+      "title": "Kimi / Moonshot",
+      "detail": "Connect a Moonshot API key. Use Custom for endpoints with a different compatibility contract.",
+      "defaultModel": "kimi-k3",
+      "authMode": "api",
+      "profileAuthMode": "api",
+      "runtimeRoute": "jarvis-moonshot-api",
+      "probeRoute": "jarvis-moonshot-api",
+      "probeProfileId": null,
+      "defaultBaseUrl": "https://api.moonshot.ai/v1",
+      "baseUrlRequired": false,
+      "conversationModel": null,
+      "openaiRuntime": "openclaw",
+      "anthropicRuntime": "openclaw",
+      "credentialEnv": ["MOONSHOT_API_KEY"]
+    },
+    "deepseek": {
+      "title": "DeepSeek",
+      "detail": "Connect a DeepSeek API key through its OpenAI-compatible interface.",
+      "defaultModel": "deepseek-v4-pro",
+      "authMode": "api",
+      "profileAuthMode": "api",
+      "runtimeRoute": "jarvis-compatible",
+      "probeRoute": "jarvis-compatible",
+      "probeProfileId": null,
+      "defaultBaseUrl": "https://api.deepseek.com",
+      "baseUrlRequired": false,
+      "conversationModel": null,
+      "openaiRuntime": "openclaw",
+      "anthropicRuntime": "openclaw",
+      "credentialEnv": ["DEEPSEEK_API_KEY"]
+    },
+    "custom": {
+      "title": "Custom compatible API",
+      "detail": "Use an OpenAI-compatible API with an HTTPS base URL and provider-supplied model ID.",
+      "defaultModel": "",
+      "authMode": "api",
+      "profileAuthMode": "api",
+      "runtimeRoute": "jarvis-compatible",
+      "probeRoute": "jarvis-compatible",
+      "probeProfileId": null,
+      "defaultBaseUrl": "",
+      "baseUrlRequired": true,
+      "conversationModel": null,
+      "openaiRuntime": "openclaw",
+      "anthropicRuntime": "openclaw",
+      "credentialEnv": []
+    }
+  },
+  "failureMatchers": [
+    {
+      "runtimeCode": "MODEL_UNAVAILABLE",
+      "probeCode": "MODEL_UNAVAILABLE",
+      "pattern": "unknown model|model_not_found|model.{0,80}(?:404|not found)"
+    },
+    {
+      "runtimeCode": "AUTH_REJECTED",
+      "probeCode": "AUTH_REJECTED",
+      "pattern": "(?:^|[^0-9])(?:401|403)(?:[^0-9]|$)|unauthor|forbidden|invalid authentication|invalid api key|invalid_api_key|token has expired|oauth token expired|not logged in|login required"
+    },
+    {
+      "runtimeCode": "RATE_LIMITED",
+      "probeCode": "RATE_LIMITED",
+      "pattern": "(?:^|[^0-9])429(?:[^0-9]|$)|rate limit|quota"
+    },
+    {
+      "runtimeCode": "PROVIDER_UNAVAILABLE",
+      "probeCode": "PROVIDER_UNAVAILABLE",
+      "pattern": "(?:^|[^0-9])(?:500|502|503|504)(?:[^0-9]|$)|service unavailable|bad gateway|upstream unavailable|overloaded"
+    },
+    {
+      "runtimeCode": "PROVIDER_TIMEOUT",
+      "probeCode": "PROBE_TIMEOUT",
+      "pattern": "timeout|timed out"
+    },
+    {
+      "runtimeCode": "ENDPOINT_UNREACHABLE",
+      "probeCode": "ENDPOINT_UNREACHABLE",
+      "pattern": "connection failure|connection failed|connect error|\\bdns\\b|\\btls\\b|certificate|network"
+    }
+  ],
+  "connectionFailures": {
+    "AUTH_REJECTED": {
+      "retryable": false,
+      "reconnectRequired": true,
+      "messageEn": "The provider rejected this credential. Reconnect the model in Settings.",
+      "messageZh": "模型服务商拒绝了当前凭证，请在设置中重新连接。",
+      "shortEn": "credential rejected",
+      "shortZh": "凭证被拒绝"
+    },
+    "MODEL_UNAVAILABLE": {
+      "retryable": false,
+      "reconnectRequired": true,
+      "messageEn": "The selected model is unavailable for this account. Choose another model in Settings.",
+      "messageZh": "当前账号无法使用所选模型，请重新选择并连接。",
+      "shortEn": "model unavailable",
+      "shortZh": "模型不可用"
+    },
+    "RATE_LIMITED": {
+      "retryable": true,
+      "reconnectRequired": false,
+      "messageEn": "The provider is rate-limiting requests. Your connection was kept.",
+      "messageZh": "服务商正在限流，连接已保留，请稍后再试。",
+      "shortEn": "provider rate-limited",
+      "shortZh": "服务商限流"
+    },
+    "PROVIDER_UNAVAILABLE": {
+      "retryable": true,
+      "reconnectRequired": false,
+      "messageEn": "The provider is temporarily unavailable. Your connection was kept.",
+      "messageZh": "服务商暂时不可用，连接已保留，请稍后再试。",
+      "shortEn": "provider unavailable",
+      "shortZh": "服务商不可用"
+    },
+    "PROVIDER_TIMEOUT": {
+      "retryable": true,
+      "reconnectRequired": false,
+      "messageEn": "The provider timed out. Your connection was kept.",
+      "messageZh": "服务商响应超时，连接已保留，请再试一次。",
+      "shortEn": "provider timed out",
+      "shortZh": "服务商超时"
+    },
+    "PROBE_TIMEOUT": {
+      "retryable": true,
+      "reconnectRequired": false,
+      "messageEn": "The provider did not answer the connection check in time.",
+      "messageZh": "服务商未能及时完成连接验证。",
+      "shortEn": "verification timed out",
+      "shortZh": "验证超时"
+    },
+    "ENDPOINT_UNREACHABLE": {
+      "retryable": true,
+      "reconnectRequired": false,
+      "messageEn": "The provider endpoint is temporarily unreachable. Your connection was kept.",
+      "messageZh": "暂时无法安全访问服务商接口，连接已保留。",
+      "shortEn": "endpoint unreachable",
+      "shortZh": "接口不可达"
+    },
+    "PROVIDER_FAILED": {
+      "retryable": false,
+      "reconnectRequired": false,
+      "messageEn": "The provider could not complete this request. The connection was left unchanged.",
+      "messageZh": "服务商未能完成这个请求，当前连接设置没有改变。",
+      "shortEn": "request failed",
+      "shortZh": "请求失败"
+    },
+    "LOCAL_GATEWAY_UNREACHABLE": {
+      "retryable": true,
+      "reconnectRequired": false,
+      "messageEn": "The local model gateway disconnected. The connection setting was kept and will recover automatically.",
+      "messageZh": "本地模型网关刚刚断开，连接设置未改变；下次请求会自动恢复。",
+      "shortEn": "local gateway unavailable",
+      "shortZh": "本地网关不可用"
+    },
+    "INVALID_PROBE_OUTPUT": {
+      "retryable": true,
+      "reconnectRequired": false,
+      "messageEn": "The provider check returned an unreadable response.",
+      "messageZh": "服务商返回了无法读取的验证结果。",
+      "shortEn": "invalid verification response",
+      "shortZh": "验证结果无效"
+    },
+    "PROVIDER_NOT_PROBED": {
+      "retryable": true,
+      "reconnectRequired": false,
+      "messageEn": "The selected provider was not reached by the connection check.",
+      "messageZh": "连接验证未能访问所选服务商。",
+      "shortEn": "provider not reached",
+      "shortZh": "未访问服务商"
+    },
+    "PROFILE_NOT_PROBED": {
+      "retryable": false,
+      "reconnectRequired": true,
+      "messageEn": "A different saved account answered the check. Reconnect this MERRICK account.",
+      "messageZh": "验证命中了另一已保存账号，请重新连接当前 MERRICK 账号。",
+      "shortEn": "different account verified",
+      "shortZh": "验证账号不一致"
+    },
+    "PROBE_FAILED": {
+      "retryable": true,
+      "reconnectRequired": false,
+      "messageEn": "The provider could not complete the connection check.",
+      "messageZh": "服务商未能完成连接验证。",
+      "shortEn": "verification failed",
+      "shortZh": "验证失败"
+    },
+    "VALIDATION_REQUIRED": {
+      "retryable": false,
+      "reconnectRequired": true,
+      "messageEn": "This saved connection must be verified before it can be used.",
+      "messageZh": "此已保存连接需要验证后才能使用。",
+      "shortEn": "verification required",
+      "shortZh": "需要验证"
+    },
+    "NOT_CONFIGURED": {
+      "retryable": false,
+      "reconnectRequired": true,
+      "messageEn": "No model provider has been configured.",
+      "messageZh": "尚未配置模型服务商。",
+      "shortEn": "not configured",
+      "shortZh": "未配置"
+    },
+    "READY": {
+      "retryable": false,
+      "reconnectRequired": false,
+      "messageEn": "Connection verified.",
+      "messageZh": "连接验证成功。",
+      "shortEn": "ready",
+      "shortZh": "已就绪"
+    }
+  }
+}

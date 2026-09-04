@@ -1,0 +1,13 @@
+(version 1)
+
+; OpenClaw may read installed code and public system resources, but it may write
+; only its private state/memory tree and the current user's temporary directory.
+(allow default)
+(deny file-write*)
+(allow file-write*
+  (subpath (param "STATE_DIR"))
+  (subpath (param "JARVIS_WORKSPACE"))
+  (subpath (param "TMP_DIR"))
+  (subpath "/private/tmp")
+  (literal "/dev/null")
+  (literal "/dev/tty"))

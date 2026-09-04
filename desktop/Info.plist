@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>CFBundleExecutable</key><string>Merrick</string>
+  <key>CFBundleIdentifier</key><string>ai.jarvis.desktop</string>
+  <key>CFBundleName</key><string>MERRICK</string>
+  <key>CFBundleDisplayName</key><string>MERRICK</string>
+  <key>CFBundleIconFile</key><string>AppIcon</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleShortVersionString</key><string>0.2.22</string>
+  <key>CFBundleVersion</key><string>42</string>
+  <key>NSMicrophoneUsageDescription</key><string>MERRICK需要麦克风来听取您的指令。</string>
+  <key>NSSpeechRecognitionUsageDescription</key><string>MERRICK需要语音识别来实时理解您的指令。</string>
+  <key>NSAudioCaptureUsageDescription</key><string>MERRICK需要读取系统播放音频作为本地回声消除参考；音频不会被保存或上传。</string>
+  <key>NSScreenCaptureUsageDescription</key><string>MERRICK仅在您要求查看屏幕，或为语音消除电脑播放回声时使用屏幕与系统音频权限。</string>
+  <key>NSAppleEventsUsageDescription</key><string>MERRICK仅在您明确要求时控制 Apple Music 或 Spotify 的播放。</string>
+  <key>NSAppTransportSecurity</key><dict><key>NSAllowsLocalNetworking</key><true/></dict>
+</dict></plist>

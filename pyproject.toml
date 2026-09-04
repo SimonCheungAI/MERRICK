@@ -1,0 +1,18 @@
+[project]
+name = "merrick"
+version = "0.2.0"
+requires-python = ">=3.12"
+dependencies = [
+    "edge-tts>=7.2.8",
+    "fastapi>=0.139.0",
+    "httpx>=0.28.1",
+    "mcp>=1.26.0",
+    "numpy>=2.4.0",
+    "pipecat-ai>=1.7.0",
+    "pypdf>=6.1.0",
+    "pywebrtc-audio==0.1.0",
+    "resemblyzer>=0.1.4",
+    "setuptools<82",
+    "uvicorn[standard]>=0.51.0",
+    "websockets>=16.1",
+]

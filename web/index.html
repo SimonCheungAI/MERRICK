@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MERRICK</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+</head>
+<body>
+  <div class="desktop-grip" data-drag-region>
+    <button id="expand-btn" data-i18n-title="expand_title" title="展开/收起控制面板">⌁</button>
+    <button id="close-btn" data-i18n-title="close_title" title="完全退出 MERRICK">×</button>
+  </div>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <header class="hud-header">
+    <div class="brand">
+      <span class="brand-main">MERRICK</span>
+      <span class="brand-sub" data-i18n="brand_sub">Personal desktop assistant</span>
+    </div>
+    <div class="header-right">
+      <span id="clock" class="clock"></span>
+      <span id="conn-dot" class="conn-dot"></span>
+      <span id="conn-text" class="conn-text" data-i18n="connecting">CONNECTING</span>
+    </div>
+  </header>
+
+  <main class="hud-main">
+    <!-- 左侧：系统日志 -->
+    <aside class="panel panel-log">
+      <div class="panel-title" data-i18n="system_log">SYSTEM LOG</div>
+      <div id="syslog" class="syslog"></div>
+    </aside>
+
+    <!-- 中间：反应堆 -->
+    <section class="reactor-zone">
+      <div id="reactor" class="reactor" data-i18n-title="interrupt_title" title="点击可打断MERRICK">
+        <canvas id="holo" width="680" height="680"></canvas>
+      </div>
+      <div id="state-label" class="state-label" data-i18n="state_idle">STANDBY</div>
+      <div id="interim" class="interim"></div>
+    </section>
+
+  </main>
+
+  <footer class="hud-footer">
+    <div class="command-compose">
+      <button id="mic-btn" class="mic-btn" data-i18n-title="mic_title" title="语音输入 (按住空格也可以)">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+          <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/>
+        </svg>
+      </button>
+      <input id="text-input" class="text-input" type="text"
+             data-i18n-placeholder="command_placeholder" placeholder="向MERRICK下达指令…（回车发送）" autocomplete="off">
+      <button id="send-btn" class="send-btn" data-i18n="send">发送</button>
+    </div>
+    <div class="footer-actions">
+      <label class="toggle">
+        <input type="checkbox" id="tts-toggle" checked>
+        <span data-i18n="voice_reply">语音回复</span>
+      </label>
+      <label class="toggle continuous-toggle">
+        <input type="checkbox" id="auto-toggle">
+        <span data-i18n="continuous_conversation">连续对话</span>
+      </label>
+      <button id="watch-mode-btn" class="watch-mode-btn" type="button"
+              aria-pressed="false" data-i18n-title="watch_title" title="仅让已验证的主人声纹进入对话" data-i18n="watch_mode">
+        WATCH MODE
+      </button>
+      <button id="meeting-mode-btn" class="watch-mode-btn meeting-mode-btn" type="button"
+              aria-pressed="false" data-i18n-title="meeting_title" title="持续转录会议；仅在称呼 Merrick 时回答" data-i18n="meeting_mode">
+        MEETING MODE
+      </button>
+      <button id="plan-mode-btn" class="setup-btn plan-mode-btn" type="button" aria-expanded="false">
+        PLAN MODE
+      </button>
+      <button id="agent-board-btn" class="setup-btn agent-board-btn" type="button" aria-expanded="false">
+        AGENTS
+      </button>
+      <button id="organizer-btn" class="setup-btn organizer-btn" type="button"
+              data-i18n-title="organizer_title" title="打开个人助理工作台" data-i18n="organizer">
+        ASSISTANT
+      </button>
+      <button id="setup-btn" class="setup-btn" type="button" data-i18n-title="setup_title" title="打开 MERRICK 设置" data-i18n="setup">
+        SETUP
+      </button>
+      <button id="display-btn" class="setup-btn display-btn" type="button" data-i18n-title="display_title" title="打开研究与回答展示" data-i18n="display">
+        DISPLAY
+      </button>
+    </div>
+  </footer>
+
+  <section id="openclaw-approval" class="openclaw-approval" hidden role="dialog" aria-modal="true" aria-labelledby="openclaw-approval-title">
+    <div class="openclaw-approval-card">
+      <div class="setup-eyebrow">OPENCLAW · USER AUTHORIZATION</div>
+      <h2 id="openclaw-approval-title">Allow this action?</h2>
+      <p id="openclaw-approval-description" class="openclaw-approval-description"></p>
+      <div id="openclaw-approval-meta" class="openclaw-approval-meta"></div>
+      <div id="openclaw-approval-actions" class="openclaw-approval-actions"></div>
+    </div>
+  </section>
+
+  <section id="organizer-panel" class="organizer-panel" hidden aria-label="MERRICK personal assistant dashboard">
+    <div class="organizer-shell">
+      <header class="organizer-head">
+        <div>
+          <div class="setup-eyebrow" data-i18n="organizer_eyebrow">MERRICK · PERSONAL OPERATIONS</div>
+          <h2 data-i18n="organizer_heading">Personal Assistant</h2>
+          <p data-i18n="organizer_lede">Projects, commitments, reminders and briefings — one private operational view.</p>
+        </div>
+        <div class="organizer-head-actions">
+          <span id="organizer-updated" class="organizer-updated"></span>
+          <button id="organizer-fullscreen-btn" class="organizer-window-btn" type="button"
+                  aria-pressed="false" aria-label="Enter full screen" data-native-fullscreen-control hidden>
+            <svg aria-hidden="true" viewBox="0 0 20 20" width="15" height="15">
+              <path d="M7 3H3v4M13 3h4v4M7 17H3v-4M13 17h4v-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>FULL SCREEN</span>
+          </button>
+          <button id="organizer-refresh-btn" class="organizer-icon-btn" type="button" data-i18n-title="refresh" title="刷新">↻</button>
+          <button id="organizer-close-btn" class="setup-close-btn" type="button" data-i18n-aria-label="close_organizer" aria-label="Close personal assistant dashboard">×</button>
+        </div>
+      </header>
+
+      <nav class="organizer-nav" role="tablist" aria-label="Assistant dashboard sections">
+        <button id="organizer-tab-overview" class="active" type="button" role="tab" aria-selected="true" aria-controls="organizer-page-overview" data-organizer-view="overview" data-i18n="organizer_overview">OVERVIEW</button>
+        <button id="organizer-tab-intelligence" type="button" role="tab" aria-selected="false" aria-controls="organizer-page-intelligence" tabindex="-1" data-organizer-view="intelligence" data-i18n="organizer_intelligence">INTELLIGENCE</button>
+        <button id="organizer-tab-journal" type="button" role="tab" aria-selected="false" aria-controls="organizer-page-journal" tabindex="-1" data-organizer-view="journal" data-i18n="organizer_journal">JOURNAL</button>
+        <button id="organizer-tab-meetings" type="button" role="tab" aria-selected="false" aria-controls="organizer-page-meetings" tabindex="-1" data-organizer-view="meetings" data-i18n="organizer_meetings">MEETINGS</button>
+        <button id="organizer-tab-settings" type="button" role="tab" aria-selected="false" aria-controls="organizer-page-settings" tabindex="-1" data-organizer-view="settings" data-i18n="organizer_schedule">SCHEDULE</button>
+      </nav>
+
+      <div id="organizer-status" class="organizer-status" role="status"></div>
+
+      <div id="organizer-page-overview" class="organizer-view" role="tabpanel" aria-labelledby="organizer-tab-overview" data-organizer-page="overview" tabindex="0">
+        <section id="organizer-stats" class="organizer-stats" aria-label="Task statistics"></section>
+        <section class="organizer-card personal-operations-card" aria-labelledby="personal-operations-heading">
+          <div class="organizer-card-head personal-operations-head">
+            <div>
+              <span class="organizer-kicker" data-i18n="organizer_operations">OPERATIONS CONTROL</span>
+              <h3 id="personal-operations-heading" data-i18n="organizer_operations_heading">What MERRICK can do safely</h3>
+            </div>
+            <span id="personal-operations-mode" class="personal-operations-mode">GUARDED</span>
+          </div>
+          <div id="personal-operations-status" class="personal-operations-grid" role="list" aria-live="polite"></div>
+          <p id="personal-operations-policy" class="personal-operations-policy"></p>
+        </section>
+        <div class="organizer-columns">
+          <section class="organizer-card organizer-task-card">
+            <div class="organizer-card-head"><div><span class="organizer-kicker" data-i18n="organizer_now">NOW</span><h3 data-i18n="organizer_tasks">Tasks</h3></div><span id="organizer-task-count" class="organizer-count">0</span></div>
+            <div id="organizer-task-list" class="organizer-list"></div>
+          </section>
+          <div class="organizer-stack">
+            <section class="organizer-card">
+              <div class="organizer-card-head"><div><span class="organizer-kicker" data-i18n="organizer_next">NEXT</span><h3 data-i18n="organizer_reminders">Reminders</h3></div></div>
+              <div id="organizer-reminder-list" class="organizer-list compact"></div>
+            </section>
+            <section class="organizer-card">
+              <div class="organizer-card-head"><div><span class="organizer-kicker" data-i18n="organizer_portfolio">PORTFOLIO</span><h3 data-i18n="organizer_projects">Projects</h3></div></div>
+              <div id="organizer-project-list" class="organizer-project-grid"></div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <div id="organizer-page-intelligence" class="organizer-view" role="tabpanel" aria-labelledby="organizer-tab-intelligence" data-organizer-page="intelligence" tabindex="0" hidden>
+        <section class="organizer-card intelligence-composer">
+          <div class="intelligence-composer-copy">
+            <span class="organizer-kicker" data-i18n="intelligence_studio">EDITORIAL STUDIO</span>
+            <h3 data-i18n="intelligence_heading">Describe any newspaper you want.</h3>
+            <p data-i18n="intelligence_lede">Write the goal in your own words. MERRICK will decide what to research and how to structure it; there is no fixed subject questionnaire.</p>
+          </div>
+          <div class="intelligence-compose-fields">
+            <label><span data-i18n="intelligence_title">Newspaper name</span><input id="intelligence-title-input" maxlength="140" data-i18n-placeholder="intelligence_title_placeholder" placeholder="e.g. Global Markets Morning Paper"></label>
+            <label class="intelligence-goal-field"><span data-i18n="intelligence_goal">Editorial goal</span><textarea id="intelligence-prompt-input" maxlength="3000" rows="5" data-i18n-placeholder="intelligence_prompt_placeholder" placeholder="Describe what you want to understand, compare, monitor, and why…"></textarea></label>
+            <label><span data-i18n="intelligence_time">Daily delivery</span><input id="intelligence-time-input" type="time" value="08:00"></label>
+            <label class="intelligence-enable-field"><input id="intelligence-enabled-input" type="checkbox"><span data-i18n="intelligence_enable">Enable daily edition</span></label>
+          </div>
+          <div class="intelligence-compose-actions">
+            <button id="intelligence-save-btn" class="intelligence-secondary-btn" type="button" data-i18n="intelligence_save">SAVE BRIEF</button>
+            <button id="intelligence-generate-btn" class="meeting-confirm-btn" type="button" data-i18n="intelligence_save_generate">SAVE &amp; GENERATE NOW</button>
+          </div>
+        </section>
+        <div id="intelligence-subscription-list" class="intelligence-subscription-list"></div>
+        <section id="intelligence-edition-feature" class="organizer-card briefing-feature intelligence-feature"></section>
+        <section class="organizer-card">
+          <div class="organizer-card-head"><div><span class="organizer-kicker" data-i18n="organizer_archive">ARCHIVE</span><h3 data-i18n="intelligence_archive">Intelligence editions</h3></div></div>
+          <div id="intelligence-edition-list" class="briefing-archive"></div>
+        </section>
+      </div>
+
+      <div id="organizer-page-journal" class="organizer-view" role="tabpanel" aria-labelledby="organizer-tab-journal" data-organizer-page="journal" tabindex="0" hidden>
+        <section class="organizer-card journal-calendar-card">
+          <div class="journal-calendar-head">
+            <div><span class="organizer-kicker" data-i18n="journal_calendar">WORK CALENDAR</span><h3 id="journal-month-label"></h3></div>
+            <div class="journal-month-actions">
+              <button id="journal-prev-month" type="button" data-i18n-aria-label="journal_previous" aria-label="Previous month">←</button>
+              <button id="journal-today" type="button" data-i18n="journal_today">TODAY</button>
+              <button id="journal-next-month" type="button" data-i18n-aria-label="journal_next" aria-label="Next month">→</button>
+            </div>
+          </div>
+          <p class="journal-calendar-lede" data-i18n="journal_lede">MERRICK records structured work automatically. Select a date to open that day as an operational newspaper.</p>
+          <div id="journal-calendar" class="journal-calendar"></div>
+        </section>
+        <section id="organizer-journal-feature" class="organizer-card briefing-feature"></section>
+      </div>
+
+      <div id="organizer-page-meetings" class="organizer-view" role="tabpanel" aria-labelledby="organizer-tab-meetings" data-organizer-page="meetings" tabindex="0" hidden>
+        <div id="organizer-meeting-list" class="meeting-grid"></div>
+      </div>
+
+      <div id="organizer-page-settings" class="organizer-view" role="tabpanel" aria-labelledby="organizer-tab-settings" data-organizer-page="settings" tabindex="0" hidden>
+        <section class="organizer-card schedule-intro">
+          <span class="organizer-kicker" data-i18n="organizer_automation">AUTOMATION</span>
+          <h3 data-i18n="organizer_delivery_heading">Choose what MERRICK prepares — and when.</h3>
+          <p data-i18n="organizer_delivery_lede">Every briefing is off by default. Enable only the views you want; changes stay private on this Mac.</p>
+        </section>
+        <div id="organizer-setting-list" class="schedule-grid"></div>
+        <section class="organizer-card command-guide">
+          <span class="organizer-kicker" data-i18n="organizer_commands">VOICE &amp; TEXT COMMANDS</span>
+          <h3 data-i18n="organizer_commands_heading">Speak naturally in Chinese or English.</h3>
+          <div id="organizer-command-guide" class="command-guide-grid"></div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section id="setup-panel" class="setup-panel" hidden aria-label="MERRICK setup">
+    <div class="setup-card">
+      <div class="setup-card-head">
+        <div>
+          <div class="setup-eyebrow" data-i18n="eyebrow_settings">MERRICK · FIRST RUN</div>
+          <h2 data-i18n="settings_title">MERRICK Settings</h2>
+        </div>
+        <button id="setup-close-btn" class="setup-close-btn" type="button" data-i18n-aria-label="close_settings" aria-label="Close settings">×</button>
+      </div>
+
+      <section class="setup-section">
+        <div class="setup-section-title" data-i18n="your_documents">YOUR DOCUMENTS</div>
+        <p data-i18n="your_documents_description">把 PDF、Word 文档和需要 MERRICK 读取的资料放在这个 Workspace 的 Documents 文件夹。MERRICK 写出的摘要也会保存在这里。</p>
+        <button id="open-workspace-btn" class="setup-action-btn" type="button" data-i18n="open_workspace">在 Finder 中打开 Workspace</button>
+      </section>
+
+      <section class="setup-section provider-section">
+        <div class="setup-section-title" data-i18n="model_connection">MODEL CONNECTION</div>
+        <p data-i18n="model_connection_description">选择 MERRICK 用来思考的模型。订阅登录由 MERRICK 单独管理，不复用或修改这台 Mac 的 Codex / OpenClaw 登录；API 密钥只保存到 macOS 钥匙串，不会写入 Workspace、日志或 GitHub。</p>
+        <div id="provider-current" class="provider-current" role="status" data-i18n="checking_connection">Checking connection…</div>
+        <button id="provider-open-btn" class="setup-action-btn" type="button" data-i18n="manage_model_connection">管理模型连接</button>
+      </section>
+
+      <section class="setup-section automation-access-section">
+        <div class="setup-section-title" id="automation-access-title">AUTOMATION &amp; FILES</div>
+        <p id="automation-access-description">Choose one project or user folder. Once enabled, MERRICK can directly read and change files in that folder; each change is recorded locally for review.</p>
+        <div id="automation-access-root" class="provider-current" role="status">No folder selected.</div>
+        <label class="automation-access-toggle"><input id="automation-access-enable" type="checkbox"> <span id="automation-access-enable-label">Enable Direct Automation</span></label>
+        <div class="automation-access-actions">
+          <button id="automation-access-choose" class="setup-action-btn" type="button">Choose folder</button>
+          <button id="automation-access-save" class="setup-action-btn secondary" type="button">Apply access</button>
+          <button id="automation-audit-open" class="setup-action-btn secondary" type="button">Open audit records</button>
+        </div>
+        <div id="automation-access-status" class="provider-current" role="status"></div>
+      </section>
+
+      <section class="setup-section capabilities-section">
+        <div class="setup-section-title" data-i18n="capabilities_title">OPENCLAW CAPABILITIES</div>
+        <p data-i18n="capabilities_description">OpenClaw 是 MERRICK 的执行内核。你可以打开完整的 OpenClaw Control UI 管理会话、Skills、插件、编码与多代理工作；权限和审批由 OpenClaw 统一负责。</p>
+        <div id="capabilities-summary" class="provider-current" role="status" data-i18n="checking_capabilities">Checking local capabilities…</div>
+        <div class="automation-access-actions">
+          <button id="open-openclaw-dashboard-btn" class="setup-action-btn" type="button" data-i18n="open_openclaw_dashboard">打开 OpenClaw Control UI</button>
+          <button id="capabilities-open-btn" class="setup-action-btn secondary" type="button" data-i18n="manage_capabilities">快速查看本机能力</button>
+        </div>
+        <div id="openclaw-dashboard-status" class="provider-current" role="status"></div>
+      </section>
+
+      <section class="setup-section language-section">
+        <div class="setup-section-title" data-i18n="voice_language">VOICE LANGUAGE</div>
+        <p data-i18n="voice_language_description">切换后，MERRICK 会同时更换本机语音识别、对话语言和语音输出。中文使用沉稳的男性音色，保持与英文 MERRICK 接近的节奏与语气。</p>
+        <label class="language-picker" for="speech-language-select">
+          <span data-i18n="conversation_language">对话语言</span>
+          <select id="speech-language-select">
+            <option value="en" data-i18n="language_english">English · British MERRICK</option>
+            <option value="zh" data-i18n="language_chinese">中文 · Mandarin MERRICK</option>
+          </select>
+        </label>
+        <div id="speech-language-status" class="provider-current" role="status" data-i18n="language_english_active">ENGLISH ACTIVE</div>
+      </section>
+
+      <section class="setup-section address-section">
+        <div class="setup-section-title" data-i18n="address_title">HOW MERRICK ADDRESSES YOU</div>
+        <p data-i18n="address_description">Set separate forms of address for English and Chinese. This remains only on this Mac.</p>
+        <label class="address-field"><span data-i18n="address_english">English address</span><input id="settings-address-english" maxlength="32" autocomplete="off"></label>
+        <label class="address-field"><span data-i18n="address_chinese">Chinese address</span><input id="settings-address-chinese" maxlength="32" autocomplete="off"></label>
+        <button id="save-address-btn" class="setup-action-btn" type="button" data-i18n="save_address">Save forms of address</button>
+        <div id="address-status" class="provider-current" role="status"></div>
+      </section>
+
+      <section class="setup-section voiceprint-section">
+        <div class="setup-section-title" data-i18n="voiceprint_vault">VOICEPRINT VAULT</div>
+        <p data-i18n="voiceprint_description">手动加入一段声音样本，用于识别主人和保护私人记忆。原始录音只在本机内存中处理，不会保存为音频文件。</p>
+        <div id="voiceprint-status" class="voiceprint-status" role="status" data-i18n="locked_mac_auth">LOCKED · Mac authentication required</div>
+        <div class="voiceprint-actions">
+          <button id="voiceprint-unlock-btn" class="setup-action-btn" type="button" data-i18n="unlock_with_mac">使用 Mac 密码解锁</button>
+          <button id="voiceprint-enroll-btn" class="setup-action-btn secondary" type="button" disabled data-i18n="enroll_voice_sample">录入 4 秒声音样本</button>
+        </div>
+        <p class="voiceprint-hint" data-i18n="voiceprint_hint">解锁后，按录入并自然朗读：&ldquo;Hello Merrick, this is my private voice profile.&rdquo;</p>
+      </section>
+
+      <section class="setup-section memory-export-section">
+        <div class="setup-section-title" data-i18n="memory_export">PRIVATE MEMORY EXPORT</div>
+        <p data-i18n="memory_export_description">导出 MERRICK 的私人记忆、偏好、修订记录和会议记录为加时间戳的 ZIP 文件。导出前必须通过本机密码或 Touch ID 验证；不会包含 API 密钥、模型连接配置、声纹或 Workspace 文档。</p>
+        <div id="memory-export-status" class="provider-current" role="status" data-i18n="locked_mac_auth">LOCKED · Mac authentication required</div>
+        <button id="memory-export-btn" class="setup-action-btn" type="button" data-i18n="export_with_mac">使用 Mac 密码导出记忆</button>
+      </section>
+
+      <section class="setup-section uninstall-section">
+        <div class="setup-section-title" data-i18n="uninstall_title">UNINSTALL</div>
+        <p data-i18n="uninstall_description">关闭所有 MERRICK 进程，并删除本机记忆、Workspace、设置、声纹、模型凭据和权限记录。</p>
+        <button id="uninstall-btn" class="setup-action-btn danger" type="button" data-i18n="uninstall_action">卸载并删除本机数据</button>
+      </section>
+    </div>
+  </section>
+
+  <section id="capabilities-panel" class="capabilities-panel" hidden aria-label="OpenClaw capability management">
+    <div class="capabilities-card">
+      <header class="setup-card-head">
+        <div>
+          <div class="setup-eyebrow" data-i18n="eyebrow_openclaw">MERRICK · OPENCLAW CONTROL</div>
+          <h2 data-i18n="skills_plugins">Skills &amp; Plugins</h2>
+        </div>
+        <button id="capabilities-close-btn" class="setup-close-btn" type="button" data-i18n-aria-label="close_capabilities" aria-label="Close capability manager">×</button>
+      </header>
+      <p class="capabilities-lede" data-i18n="capabilities_lede">在 MERRICK 内发现、审查、安装并管理 OpenClaw 插件与 Skills。所有变更仍由 OpenClaw 执行，并在安装前展示来源、完整性和权限。</p>
+      <div id="harness-mode-status" class="harness-mode-status" role="status">Harness Mode is checking its private plugin vault…</div>
+      <div class="capabilities-toolbar">
+        <input id="capabilities-search" class="capabilities-search" type="search" autocomplete="off" data-i18n-placeholder="capabilities_search" placeholder="搜索名称、功能或来源…">
+        <button id="capabilities-refresh-btn" class="setup-action-btn" type="button" data-i18n="refresh">刷新</button>
+        <button id="capabilities-diagnose-btn" class="setup-action-btn secondary" type="button" data-i18n="run_diagnostics">运行诊断</button>
+      </div>
+      <div id="capabilities-status" class="provider-current" role="status" data-i18n="loading_inventory">Loading capability inventory…</div>
+      <div class="capabilities-tabs" role="tablist">
+        <button class="capabilities-tab active" type="button" data-capability-tab="plugins" role="tab" aria-selected="true"><span data-i18n="plugins">PLUGINS</span> <span id="plugin-count">0</span></button>
+        <button class="capabilities-tab" type="button" data-capability-tab="discover" role="tab" aria-selected="false"><span data-i18n="discover">DISCOVER</span> <span id="catalog-count">0</span></button>
+        <button class="capabilities-tab" type="button" data-capability-tab="skills" role="tab" aria-selected="false"><span data-i18n="skills">SKILLS</span> <span id="skill-count">0</span></button>
+      </div>
+      <div id="capability-list" class="capability-list" aria-live="polite"></div>
+      <div id="capabilities-diagnostics" class="capabilities-diagnostics" hidden></div>
+    </div>
+    <section id="capability-review" class="capability-review" hidden role="dialog" aria-modal="true" aria-labelledby="capability-review-title">
+      <div class="capability-review-card">
+        <div class="setup-eyebrow" data-i18n="capability_review_eyebrow">OPENCLAW · CAPABILITY REVIEW</div>
+        <h3 id="capability-review-title"></h3>
+        <p id="capability-review-description" class="capability-review-description"></p>
+        <div id="capability-review-trust" class="capability-review-trust"></div>
+        <div id="capability-review-surfaces" class="capability-review-surfaces"></div>
+        <div id="capability-review-requirements" class="capability-review-requirements" hidden></div>
+        <div class="capability-review-actions">
+          <button id="capability-review-cancel" class="setup-action-btn secondary" type="button" data-i18n="cancel">Cancel</button>
+          <button id="capability-review-confirm" class="setup-action-btn" type="button"></button>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <section id="research-display" class="research-display" hidden aria-label="MERRICK research display">
+    <div class="research-shell">
+      <header class="research-head">
+        <div><div class="setup-eyebrow" data-i18n="eyebrow_research">MERRICK · RESEARCH DISPLAY</div><h2 id="research-query" data-i18n="live_answer">Live answer</h2></div>
+        <button id="research-close-btn" class="setup-close-btn" type="button" data-i18n-aria-label="close_display" aria-label="Close display">×</button>
+      </header>
+      <section id="research-query-choice" class="research-query-choice" hidden aria-live="polite">
+        <div id="research-query-choice-question" class="research-query-choice-question"></div>
+        <div id="research-query-choice-options" class="research-query-choice-options"></div>
+      </section>
+      <div class="research-grid">
+        <section class="answer-display"><div class="setup-section-title" data-i18n="live_answer">LIVE ANSWER</div><div id="display-answer" class="display-answer" aria-live="polite"></div></section>
+        <section class="source-display"><div class="setup-section-title" data-i18n="sources_local">SOURCES · LOCAL WEB PANELS</div><div id="research-sources" class="research-sources"></div><button id="open-all-sources-btn" class="setup-action-btn" type="button" disabled data-i18n="open_all_sources">在 MERRICK 中打开全部来源</button></section>
+      </div>
+    </div>
+  </section>
+
+  <section id="plan-mode-panel" class="plan-mode-panel" hidden aria-label="MERRICK Plan Mode">
+    <div class="plan-mode-card">
+      <header class="plan-mode-head">
+        <div><div class="setup-eyebrow">MERRICK · PLAN MODE</div><h2 id="plan-mode-title">Plan a goal</h2></div>
+        <button id="plan-mode-close-btn" class="setup-close-btn" type="button" aria-label="Close Plan Mode">×</button>
+      </header>
+      <p id="plan-mode-lede" class="plan-mode-lede">Choose an approach, then run the next step or the full plan.</p>
+      <form id="plan-mode-form" class="plan-mode-form">
+        <label id="plan-mode-goal-label" for="plan-mode-goal">Goal</label>
+        <textarea id="plan-mode-goal" rows="3" autocomplete="off" placeholder="What would you like MERRICK to accomplish?"></textarea>
+        <button id="plan-mode-create-btn" class="setup-action-btn" type="submit">CREATE PLAN</button>
+      </form>
+      <div id="plan-mode-status" class="plan-mode-status" aria-live="polite"></div>
+      <div id="plan-mode-content" class="plan-mode-content" aria-live="polite"></div>
+      <div id="plan-mode-actions" class="plan-mode-actions" hidden>
+        <button id="plan-mode-run-next-btn" class="setup-action-btn secondary" type="button">RUN NEXT</button>
+        <button id="plan-mode-run-all-btn" class="setup-action-btn" type="button">RUN ALL</button>
+        <button id="plan-mode-cancel-btn" class="setup-action-btn danger" type="button">CANCEL</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="agent-board-panel" class="agent-board-panel" hidden aria-label="MERRICK Agent Board">
+    <div class="agent-board-card">
+      <header class="agent-board-head">
+        <div>
+          <div class="setup-eyebrow">MERRICK · AGENT BOARD</div>
+          <h2 id="agent-board-title">Parallel operations</h2>
+        </div>
+        <button id="agent-board-close-btn" class="setup-close-btn" type="button" aria-label="Close Agent Board">×</button>
+      </header>
+      <p id="agent-board-lede" class="agent-board-lede">Live OpenClaw agents and their verified results.</p>
+      <div id="agent-board-overview" class="agent-board-overview">
+        <div>
+          <span id="agent-board-state" class="agent-board-state" data-state="idle">IDLE</span>
+          <strong id="agent-board-progress-copy">No active run</strong>
+        </div>
+        <span id="agent-board-count" class="agent-board-count">0 / 0</span>
+      </div>
+      <div class="agent-board-progress" aria-hidden="true"><i id="agent-board-progress-bar"></i></div>
+      <form id="agent-board-create-form" class="agent-board-create-form" hidden>
+        <label>
+          <span id="agent-board-name-label">AGENT NAME</span>
+          <input id="agent-board-name-input" maxlength="120" autocomplete="off" required>
+        </label>
+        <label>
+          <span id="agent-board-task-label">TASK</span>
+          <textarea id="agent-board-task-input" maxlength="4000" rows="3" required></textarea>
+        </label>
+        <div class="agent-board-create-actions">
+          <button id="agent-board-create-cancel-btn" class="setup-action-btn secondary" type="button">CLOSE</button>
+          <button id="agent-board-create-submit-btn" class="setup-action-btn" type="submit">START AGENT</button>
+        </div>
+      </form>
+      <div id="agent-board-content" class="agent-board-content" aria-live="polite"></div>
+      <div id="agent-board-error" class="agent-board-error" hidden role="status"></div>
+      <div class="agent-board-actions">
+        <button id="agent-board-refresh-btn" class="setup-action-btn secondary" type="button">REFRESH</button>
+        <button id="agent-board-new-btn" class="setup-action-btn" type="button">+ NEW AGENT</button>
+        <button id="agent-board-cancel-btn" class="setup-action-btn danger" type="button" disabled>CANCEL RUN</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="onboarding-panel" class="onboarding-panel" hidden aria-label="MERRICK first-run setup">
+    <div class="onboarding-card">
+      <button id="provider-close-btn" class="setup-close-btn provider-close-btn" type="button" data-i18n-aria-label="close_connection_setup" aria-label="Close connection setup">×</button>
+      <div class="setup-eyebrow" data-i18n="eyebrow_first_run">MERRICK · FIRST RUN</div>
+      <h1 data-i18n="connect_intelligence">Connect your intelligence layer.</h1>
+      <p class="onboarding-lede" data-i18n="onboarding_lede">Choose a provider now. You can change it later in SETUP. MERRICK stays a native desktop app and keeps provider secrets in your Mac Keychain.</p>
+      <div id="provider-connection-summary" class="provider-current" role="status" data-i18n="checking_connection">Checking connection…</div>
+      <div class="provider-live-details">
+        <div id="provider-active-model">ACTIVE MODEL · No verified model</div>
+        <div id="provider-runtime-label">Local service · Connecting</div>
+      </div>
+      <section id="provider-auth-card" class="provider-auth-card" hidden aria-live="polite">
+        <strong data-i18n="provider_code_instruction">Enter this code in the browser to authorize MERRICK.</strong>
+        <div id="provider-device-code" class="provider-device-code" hidden></div>
+        <button id="provider-verification-link" class="provider-verification-link" type="button" hidden data-i18n="provider_open_signin">Open secure sign-in</button>
+        <p data-i18n="provider_code_wait">Keep this window open. MERRICK will verify the connection after approval.</p>
+      </section>
+      <div class="onboarding-steps" data-i18n-aria-label="setup_progress" aria-label="Setup progress">
+        <span class="active" data-i18n="step_provider">01 · Provider</span><span data-i18n="step_connect">02 · Connect</span><span data-i18n="step_ready">03 · Ready</span>
+      </div>
+      <button id="provider-back-btn" class="provider-back-btn" type="button" data-i18n="back_to_settings">← 返回设置</button>
+      <div id="provider-picker" class="provider-picker" role="list">
+        <button class="provider-choice selected" type="button" data-provider="codex"><strong>Codex</strong><small data-i18n="provider_codex">ChatGPT / Codex subscription</small></button>
+        <button class="provider-choice" type="button" data-provider="claude-code"><strong>Claude Code</strong><small data-i18n="provider_claude">Reuse local Claude CLI login</small></button>
+        <button class="provider-choice" type="button" data-provider="openai"><strong>OpenAI API</strong><small data-i18n="provider_openai">Platform API key</small></button>
+        <button class="provider-choice" type="button" data-provider="anthropic"><strong>Anthropic API</strong><small data-i18n="provider_anthropic">Claude API key</small></button>
+        <button class="provider-choice" type="button" data-provider="gemini"><strong>Gemini</strong><small data-i18n="provider_gemini">Google AI Studio key</small></button>
+        <button class="provider-choice" type="button" data-provider="kimi"><strong>Kimi</strong><small data-i18n="provider_kimi">Moonshot API key</small></button>
+        <button class="provider-choice" type="button" data-provider="deepseek"><strong>DeepSeek</strong><small data-i18n="provider_deepseek">DeepSeek API key</small></button>
+        <button class="provider-choice" type="button" data-provider="custom"><strong data-i18n="provider_custom">Custom</strong><small data-i18n="provider_custom_description">OpenAI-compatible endpoint</small></button>
+      </div>
+      <div class="provider-form" aria-live="polite">
+        <div id="provider-detail" class="provider-detail"></div>
+        <label for="provider-model-select">Model catalog</label>
+        <div class="provider-catalog-controls">
+          <select id="provider-model-select" aria-describedby="provider-models-status"></select>
+          <button id="provider-models-refresh" class="setup-action-btn" type="button">Refresh list</button>
+        </div>
+        <p id="provider-models-status" class="provider-security-note" role="status"></p>
+        <label><span data-i18n="model">Model</span> <input id="provider-model-input" autocomplete="off" spellcheck="false" maxlength="120"></label>
+        <label id="provider-base-url-row" hidden><span data-i18n="base_url">Base URL</span> <input id="provider-base-url-input" type="url" autocomplete="off" spellcheck="false" maxlength="300" placeholder="https://api.example.com/v1"></label>
+        <label id="provider-key-row"><span data-i18n="api_key">API key</span> <input id="provider-key-input" type="password" autocomplete="off" spellcheck="false" maxlength="1024" data-i18n-placeholder="api_key_placeholder" placeholder="Paste key — it is never shown again"></label>
+        <p id="provider-security-note" class="provider-security-note"></p>
+        <div class="provider-form-actions">
+          <button id="provider-connect-btn" class="setup-action-btn" type="button" data-i18n="connect_codex">Connect Codex</button>
+          <button id="provider-skip-btn" class="setup-action-btn secondary" type="button" data-i18n="use_existing_connection">Use existing MERRICK connection</button>
+          <button id="provider-cancel-btn" class="setup-action-btn secondary" type="button" hidden>Cancel connection</button>
+        </div>
+        <div id="provider-setup-status" class="provider-setup-status" role="status"></div>
+      </div>
+      <details class="provider-form onboarding-address-form">
+        <summary class="provider-detail" data-i18n="address_title">HOW MERRICK ADDRESSES YOU</summary>
+        <p class="provider-security-note" data-i18n="address_description">Set separate forms of address for English and Chinese. This remains only on this Mac.</p>
+        <label><span data-i18n="address_english">English address</span><input id="onboarding-address-english" maxlength="32" autocomplete="off"></label>
+        <label><span data-i18n="address_chinese">Chinese address</span><input id="onboarding-address-chinese" maxlength="32" autocomplete="off"></label>
+      </details>
+    </div>
+  </section>
+
+  <script src="runtime-contract.generated.js"></script>
+  <script src="app.js"></script>
+  <script src="plan-mode.js"></script>
+  <script src="agent-board.js"></script>
+</body>
+</html>

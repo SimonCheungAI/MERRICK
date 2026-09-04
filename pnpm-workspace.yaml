@@ -1,0 +1,22 @@
+packages:
+  - "openclaw/plugins/*"
+
+# OpenClaw's published package runs a small postinstall step to expose its
+# bundled plugins. Keep every other transitive install script disabled.
+allowBuilds:
+  openclaw: true
+  "@google/genai": false
+  esbuild: true
+  protobufjs: false
+  tree-sitter-bash: false
+  # OpenClaw 2026.8 uses Koffi's verified prebuilt N-API binding for native
+  # host integrations. The package install step selects the platform artifact;
+  # it does not grant arbitrary transitive packages permission to build.
+  koffi: true
+
+minimumReleaseAgeExclude:
+  - '@openclaw/ai@2026.8.1'
+  - '@openclaw/codex@2026.8.1'
+  - openclaw@2026.8.1
+  - '@openclaw/gateway-client@2026.8.1'
+  - '@openclaw/gateway-protocol@2026.8.1'

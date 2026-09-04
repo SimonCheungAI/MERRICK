@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Board responsive fixture</title>
+  <link rel="stylesheet" href="/web/style.css">
+  <style>
+    :root {
+      --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      --font-mono: "SFMono-Regular", ui-monospace, monospace;
+    }
+    html, body { width: 100%; min-height: 100%; margin: 0; background: #030914; }
+  </style>
+</head>
+<body>
+  <section id="agent-board-panel" class="agent-board-panel" aria-label="MERRICK Agent Board">
+    <div class="agent-board-card">
+      <header class="agent-board-head">
+        <div><span class="eyebrow">MERRICK · OPENCLAW</span><h2>Parallel operations</h2></div>
+        <button class="setup-close-btn" type="button" aria-label="Close Agent Board">×</button>
+      </header>
+      <p class="agent-board-lede">Live OpenClaw agents and their verified results.</p>
+      <div class="agent-board-overview">
+        <div><span class="agent-board-state" data-state="running">RUNNING</span><strong>检查多代理面板在窄窗口中的按钮、滚动与文字布局</strong></div>
+        <span class="agent-board-count">3 / 8</span>
+      </div>
+      <div class="agent-board-progress" aria-hidden="true"><i style="width:38%"></i></div>
+      <div class="agent-board-content" aria-live="polite">
+        <article class="agent-card" data-state="running">
+          <span class="agent-card-index">01</span>
+          <div class="agent-card-body">
+            <div class="agent-card-head"><strong>一个名称很长但仍然不应该撑破界面的研究代理 Agent With A Very Long Name</strong><span class="agent-card-status">执行中</span></div>
+            <div class="agent-card-actions"><button class="agent-card-terminal">进入终端</button><button class="agent-card-close">关闭</button></div>
+          </div>
+        </article>
+        <article class="agent-card" data-state="succeeded"><span class="agent-card-index">02</span><div class="agent-card-body"><div class="agent-card-head"><strong>Evidence agent</strong><span class="agent-card-status">已完成</span></div><div class="agent-card-actions"><button class="agent-card-terminal">进入终端</button><button class="agent-card-close">关闭</button></div></div></article>
+        <article class="agent-card" data-state="succeeded"><span class="agent-card-index">03</span><div class="agent-card-body"><div class="agent-card-head"><strong>Writing agent</strong><span class="agent-card-status">已完成</span></div><div class="agent-card-actions"><button class="agent-card-terminal">进入终端</button><button class="agent-card-close">关闭</button></div></div></article>
+        <article class="agent-card" data-state="succeeded"><span class="agent-card-index">04</span><div class="agent-card-body"><div class="agent-card-head"><strong>Review agent</strong><span class="agent-card-status">已完成</span></div><div class="agent-card-actions"><button class="agent-card-terminal">进入终端</button><button class="agent-card-close">关闭</button></div></div></article>
+        <article class="agent-card" data-state="succeeded"><span class="agent-card-index">05</span><div class="agent-card-body"><div class="agent-card-head"><strong>Calendar agent</strong><span class="agent-card-status">已完成</span></div><div class="agent-card-actions"><button class="agent-card-terminal">进入终端</button><button class="agent-card-close">关闭</button></div></div></article>
+        <article class="agent-card" data-state="succeeded"><span class="agent-card-index">06</span><div class="agent-card-body"><div class="agent-card-head"><strong>Mail agent</strong><span class="agent-card-status">已完成</span></div><div class="agent-card-actions"><button class="agent-card-terminal">进入终端</button><button class="agent-card-close">关闭</button></div></div></article>
+        <article class="agent-card" data-state="succeeded"><span class="agent-card-index">07</span><div class="agent-card-body"><div class="agent-card-head"><strong>Travel agent</strong><span class="agent-card-status">已完成</span></div><div class="agent-card-actions"><button class="agent-card-terminal">进入终端</button><button class="agent-card-close">关闭</button></div></div></article>
+        <article class="agent-card" data-state="succeeded"><span class="agent-card-index">08</span><div class="agent-card-body"><div class="agent-card-head"><strong>Final synthesis agent</strong><span class="agent-card-status">已完成</span></div><div class="agent-card-actions"><button class="agent-card-terminal">进入终端</button><button class="agent-card-close">关闭</button></div></div></article>
+      </div>
+      <div class="agent-board-actions"><button class="setup-action-btn secondary">刷新</button><button class="setup-action-btn">+ 新建代理</button><button class="setup-action-btn danger">取消任务</button></div>
+    </div>
+  </section>
+</body>
+</html>
