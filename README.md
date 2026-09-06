@@ -1,18 +1,45 @@
 # MERRICK
 
-[Website](https://getmerrick.com/) · [MIT License](LICENSE) · macOS / Apple silicon
+## Your personal assistant agent for real work
 
-A transparent macOS voice assistant with a floating point-cloud interface,
-streamed English speech, OpenClaw system tools, and ChatGPT/Codex subscription
-authentication. No OpenAI API key is required.
+**Your own JARVIS for macOS.** MERRICK listens, plans, researches, remembers,
+and acts across your computer with your approval.
 
-This repository is the public source distribution. It deliberately excludes
-developer credentials, notarization records, personal memory, voiceprints,
-local workspaces, generated applications, and dependency/model caches. Signed
-release downloads will be published separately after Apple notarization.
+MERRICK stays with the job from first thought to finished task. Talk through an
+idea, ask it to investigate a question, turn a goal into an ordered plan, work
+across your Mac, and return later without starting from zero.
 
-MERRICK addresses its verified owner as “sir” when an address is useful.
-It does not retain or volunteer a personal name as part of its persona.
+[Download MERRICK for Apple silicon](https://getmerrick.com/downloads/MERRICK-macOS-arm64.dmg) · [Watch the system film](https://getmerrick.com/#film) · [Visit the website](https://getmerrick.com/) · [MIT License](LICENSE)
+
+Public Preview 0.2.22 · Apple notarized · macOS 26+ · ChatGPT/Codex subscription or your chosen model provider
+
+## Built around your work
+
+- Speak naturally and interrupt whenever the work changes direction.
+- Turn an outcome into a plan, then keep the plan connected to the work being done.
+- Research across sources, compare what matters, and bring the evidence back to you.
+- Read your working documents and create or revise notes in a dedicated workspace.
+- Use browser and Computer Use tools when a task needs action, with approvals kept in the loop.
+- Carry your conversations, decisions, and approved preferences into the next session.
+
+Ask MERRICK for a morning briefing, a research comparison before a decision, the
+next steps hidden in a document, an updated project note, or help completing a
+visible task on your Mac. The conversation and the execution stay in one place.
+
+## Personal means yours
+
+MERRICK is built for one verified owner. Its memory and workspaces stay on your
+Mac. Provider credentials stay in macOS Keychain. Screen access is requested
+only when you ask MERRICK to inspect the visible window, and actions remain
+behind OpenClaw and macOS approvals.
+
+This repository is the public source distribution. It excludes developer
+credentials, notarization records, personal memory, voiceprints, local
+workspaces, generated applications, and dependency or model caches. The signed,
+Apple-notarized installer is available from the link above.
+
+MERRICK addresses its verified owner as “sir” when an address is useful. It
+does not retain or volunteer a personal name as part of its persona.
 
 ## Architecture
 
